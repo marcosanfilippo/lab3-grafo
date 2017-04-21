@@ -1,7 +1,6 @@
 /*
 /*/
 *.orig
-passworddb.txt
 !/src/
 !pom.xml
 !.gitignore
