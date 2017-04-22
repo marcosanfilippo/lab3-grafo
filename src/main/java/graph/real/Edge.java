@@ -2,28 +2,17 @@ package graph.real;
 
 public class Edge {
 	
-	private String src, dts;
+	private String dts;
 	private int cost;
 
-	public Edge(String src, String dts) {
-		//TODO remove me
-		this.src = src;
+	public Edge(String dts) {
 		this.dts = dts;
 		this.cost = 1;
 	}
 	
-	public Edge(String src, String dts, int cost) {
-		this.src = src;
+	public Edge(String dts, int cost) {
 		this.dts = dts;
 		this.cost = cost;
-	}
-
-	public String getSrc() {
-		return src;
-	}
-
-	public void setSrc(String src) {
-		this.src = src;
 	}
 
 	public String getDts() {

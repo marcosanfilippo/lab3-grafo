@@ -5,14 +5,18 @@ import java.util.List;
 
 public class Graph {
 	
-	public List<String> allNodes;
+	public List<Node> allNodes;
 	
 	public Graph(){
-		allNodes = new ArrayList<String>();
+		allNodes = new ArrayList<Node>();
 	}
 	
-	public Graph(ArrayList<String> a){
-		allNodes = a;
+	public Graph(List<Node> nodeList){
+		allNodes = nodeList;
+	}
+
+	public List<Node> getAllNodes() {
+		return allNodes;
 	}
 
 }
