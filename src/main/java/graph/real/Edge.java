@@ -3,6 +3,7 @@ package graph.real;
 public class Edge {
 	
 	private String dts;
+	private String line;
 	private int cost;
 
 	public Edge(String dts) {
@@ -10,7 +11,13 @@ public class Edge {
 		this.cost = 1;
 	}
 	
-	public Edge(String dts, int cost) {
+	public Edge(String dts, String line) {
+		this.dts = dts;
+		this.line = line;
+		this.cost = 1;
+	}
+	
+	public Edge(String dts, String line, int cost) {
 		this.dts = dts;
 		this.cost = cost;
 	}
@@ -29,6 +36,14 @@ public class Edge {
 
 	public void setCost(int c) {
 		this.cost = c;
+	}
+	
+	public String getLine() {
+		return line;
+	}
+	
+	public void setLine(String line) {
+		this.line = line;
 	}
 
 }
