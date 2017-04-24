@@ -19,4 +19,7 @@ public class Graph {
 		return allNodes;
 	}
 	
+	public Node getNode(String id) {
+		return allNodes.get(id);
+	}
 }

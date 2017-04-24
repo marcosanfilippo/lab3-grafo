@@ -41,5 +41,5 @@ public class Node {
 	public void setAdjList(List<Edge> adjList) {
 		this.adjList = adjList;
 	}
-		
+	
 }

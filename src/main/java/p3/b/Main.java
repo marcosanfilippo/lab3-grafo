@@ -25,6 +25,7 @@ public class Main {
 //				System.out.println("    DST: " + e.getDst() /*+ ", cost:"*/);
 //		}
 		
+		//DijkstraAlgorithm da = new DijkstraAlgorithm(g, sourceNodeId);
 	}
-
+	
 }
