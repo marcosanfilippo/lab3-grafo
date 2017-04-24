@@ -19,8 +19,15 @@ public class Edge {
 	
 	public Edge(String dst, String line, int cost) {
 		this.dst = dst;
+		this.line = line;
 		this.cost = cost;
 	}
+	
+	public Edge(String dst, int cost) {
+		this.dst = dst;
+		this.cost = cost;
+	}
+	
 
 	public String getDst() {
 		return dst;
