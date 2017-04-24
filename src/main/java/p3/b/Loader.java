@@ -38,7 +38,7 @@ public class Loader {
 							if(line.compareToIgnoreCase(nextLine)==0){
 								//can add its next, because the bus line is the same
 								System.out.println("Linea: " + line + ", " + n.getId() + " -> " + sequenceRS.getString(3) + ", ");
-								n.getAdjList().add(new Edge(sequenceRS.getString(3)));
+								n.getAdjList().add(new Edge(sequenceRS.getString(3), sequenceRS.getString(1)));
 							}
 							if(!sequenceRS.isLast())
 								sequenceRS.previous(); //return to the previous line to process its node!
