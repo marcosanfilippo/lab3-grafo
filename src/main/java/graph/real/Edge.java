@@ -3,7 +3,7 @@ package graph.real;
 public class Edge {
 	
 	private String dts;
-	private int cost;
+	private Integer cost;
 
 	public Edge(String dts) {
 		this.dts = dts;

@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Graph {
 	
-	public List<Node> allNodes;
+	private final List<Node> allNodes;
 	
 	public Graph(){
 		allNodes = new ArrayList<Node>();
@@ -18,5 +18,5 @@ public class Graph {
 	public List<Node> getAllNodes() {
 		return allNodes;
 	}
-
+	
 }
