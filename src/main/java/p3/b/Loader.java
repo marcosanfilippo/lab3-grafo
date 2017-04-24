@@ -47,7 +47,9 @@ public class Loader {
 					}
 				}
     		}
-    		g = new Graph(nodeList);
+    		Map<String,Node> nodeMap = new HashMap<String,Node>();
+    		for(Node n:nodeList) nodeMap.put(n.getId(), n);
+    		g = new Graph(nodeMap);
     		
     	} catch (Exception e) {    		
     		e.printStackTrace();
