@@ -18,7 +18,7 @@ public class Main {
 		for(Node n : g.getAllNodes()){
 			System.out.println("Node: " + n.getId() + " can reach:");
 			for(Edge e : n.getAdjList())
-				System.out.println("    DST: " + e.getDts() /*+ ", cost:"*/);
+				System.out.println("    DST: " + e.getDst() /*+ ", cost:"*/);
 		}
 	}
 
