@@ -1,5 +1,13 @@
+<<<<<<< HEAD
 Manifest-Version: 1.0
 Built-By: Carlopett
 Build-Jdk: 1.8.0_121
 Created-By: Maven Integration for Eclipse
 
+=======
+Manifest-Version: 1.0
+Built-By: francesco
+Build-Jdk: 1.8.0_121
+Created-By: Maven Integration for Eclipse
+
+>>>>>>> 258e1a456632ff6fc6e7171834ffe9b099e0e732
