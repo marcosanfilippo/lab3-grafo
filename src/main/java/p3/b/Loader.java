@@ -19,9 +19,9 @@ public class Loader {
     		Connection conn = DriverManager.getConnection(connectionUrl,"postgres","ai-user-password"); 
     		Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
     		 
-    		ResultSet nodeRS = stmt.executeQuery("SELECT id FROM BusStop ORDER BY id");
+    		ResultSet nodeRS = stmt.executeQuery("SELECT id, ST_AsText(latlng) FROM BusStop ORDER BY id");
     		while(nodeRS.next())
-        		nodeList.add(new Node(nodeRS.getString(1))); // starts from 1, not 0.
+        		nodeList.add(new Node(nodeRS.getString(1), nodeRS.getString(2))); // starts from 1, not 0.
     		
     		//ResultSet stopRS = stmt.executeQuery("SELECT stopid, lineid, sequencenumber "
     			//+"FROM BusLineStop ORDER BY stopid, lineid, sequencenumber");
@@ -38,12 +38,20 @@ public class Loader {
 							if(line.compareToIgnoreCase(nextLine)==0){
 								//can add its next, because the bus line is the same
 								System.out.println("Linea: " + line + ", " + n.getId() + " -> " + sequenceRS.getString(3) + ", ");
+								
+								//adding Edge(stopID, lineID) --> Edge(destination, line);
 								n.getAdjList().add(new Edge(sequenceRS.getString(3), sequenceRS.getString(1)));
+							} else { //check if the distance between nodes is less than 250 m
+								ResultSet temp = stmt.executeQuery("SELECT ST_AsText(latlng) FROM BusStop WHERE id = '"+ sequenceRS.getString(3) +"'");
+								ResultSet distance = stmt.executeQuery("SELECT st_distance_sphere(ST_GeographyFromText("+ temp.getString(0) +"),ST_GeographyFromText("+ n.getLatLng() +")");
+								if (Integer.parseInt(distance.getString(0)) < 250){
+									n.getAdjList().add(new Edge(sequenceRS.getString(3)));
+								}
 							}
 							if(!sequenceRS.isLast())
 								sequenceRS.previous(); //return to the previous line to process its node!
 							break;
-						}
+						}	
 					}
 				}
     		}

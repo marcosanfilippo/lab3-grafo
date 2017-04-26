@@ -2,8 +2,8 @@ package graph.real;
 
 public class Edge {
 	
-	private String dst;
-	private String line;
+	private String dst; 
+	private String line;	//line == null indicates a near stop (250 meters) belonging to another line
 	private int cost;
 
 	public Edge(String dst) {
@@ -19,8 +19,15 @@ public class Edge {
 	
 	public Edge(String dst, String line, int cost) {
 		this.dst = dst;
+		this.line = line;
 		this.cost = cost;
 	}
+	
+	public Edge(String dst, int cost) {
+		this.dst = dst;
+		this.cost = cost;
+	}
+	
 
 	public String getDst() {
 		return dst;
