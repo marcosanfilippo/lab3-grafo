@@ -25,7 +25,11 @@ public class Node {
 		this.id = id;
 		adjList = al;
 	}
-
+	
+	public void addEdge(Edge e) {
+		this.adjList.add(e);
+	}
+	
 	public String getId() {
 		return id;
 	}
