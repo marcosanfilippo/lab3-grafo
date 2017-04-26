@@ -1,22 +1,25 @@
 package graph.real;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Graph {
 	
-	public List<Node> allNodes;
-	
+	public Map<String, Node> allNodes;
+
 	public Graph(){
-		allNodes = new ArrayList<Node>();
+		allNodes = new HashMap<String,Node>();
 	}
 	
-	public Graph(List<Node> nodeList){
+	public Graph(Map<String,Node> nodeList){
 		allNodes = nodeList;
 	}
 
-	public List<Node> getAllNodes() {
+	public Map<String,Node> getAllNodes() {
 		return allNodes;
 	}
-
+	
+	public Node getNode(String id) {
+		return allNodes.get(id);
+	}
 }
