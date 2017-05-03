@@ -22,7 +22,7 @@ public class MongoHandler {
 		md = mc.getDatabase(db);
 	}
 
-	public MongoDatabase getMd() {
+	public MongoDatabase getMongoDB() {
 		return md;
 	}
 	
