@@ -5,6 +5,8 @@ import mongo.manager.*;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Indexes;
+
 import static com.mongodb.client.model.Filters.*;
 
 import java.util.List;
@@ -68,9 +70,12 @@ public class MinPathCollection {
 		return d;
 	}
 
+	//TODO change name to rebuild(), clear() or ....
 	public void drop(String coll) {
 		mh.getMongoDB().getCollection(coll).drop();
-		
+		//TODO check
+		mh.getMongoDB().getCollection(coll).createIndex(Indexes.ascending("sourceID","destinationID"));
+
 	}
 
 }
