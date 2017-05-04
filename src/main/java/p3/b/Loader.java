@@ -51,7 +51,15 @@ public class Loader {
 						if(sequenceRS.next()){
 							String nextLine = sequenceRS.getString("lineid");
 							String nextStop = sequenceRS.getString("stopid");
-							int cost = 0;
+							
+							Statement stmtDistance = conn.createStatement();
+				    			ResultSet distanceQuery = stmtDistance.executeQuery("SELECT ST_Distance(latlng,ST_GeographyFromText('"+ n.getLatLng() +"')) AS distan FROM BusStop WHERE id='"+nextStop+"'");
+				    			if ( ! distanceQuery.next() )
+				    			{
+				    				throw new Exception("Unable to find BusStop with id "+nextStop);
+				    			}
+							Double distanza =  distanceQuery.getDouble("distan");
+							Double cost = distanza/500;
 							//Se sono sulla stessa linea
 							if(line.compareToIgnoreCase(nextLine)==0){
 								//can add its next, because the bus line is the same
@@ -61,7 +69,7 @@ public class Loader {
 								n.getAdjList().add(new Edge(nextStop, nextLine,cost));
 							//Altrimenti verifico se la fermata successiva in BusLineStop (?) è nel raggio di 250m
 							} else { //check if the distance between nodes is less than 250 m
-								Statement stmt1 = conn.createStatement();
+								/*Statement stmt1 = conn.createStatement();
 								ResultSet temp = stmt1.executeQuery("SELECT id,ST_Distance(latlng,ST_GeographyFromText('"+ n.getLatLng() +"')) as dista FROM BusStop WHERE id = '"+nextStop+"'");
 								if ( temp.next() )
 								{
@@ -72,7 +80,7 @@ public class Loader {
 									}
 								}
 								temp.close();
-								stmt1.close();
+								stmt1.close();*/
 							}
 							if(!sequenceRS.isLast())
 								sequenceRS.previous(); //return to the previous line to process its node!
@@ -82,22 +90,21 @@ public class Loader {
 				}
     		}
     		
-    		/*
-    		//TODO SLOW: compattabile in una sola query forse?
-			for(Node n : nodeList)
-			{ //Per ogni fermata
-				//Altrimenti verifico se la fermata successiva in BusLineStop (perchè?) è nel raggio di 250m
-				Statement stmt1 = conn.createStatement();
-				ResultSet temp = stmt1.executeQuery("SELECT id,ST_Distance_Sphere('"+ n.getLatLng() +"')) as dista FROM BusStop WHERE id = '"+nextStop+"' AND ST_Distance_Sphere('"+ n.getLatLng() +"') <= 250 ");
-				while ( temp.next() )
-				{
-					Double distanza = temp.getDouble("dista");
-					String stopId = temp.getString("id");
-					Integer cost = 0;
-					n.getAdjList().add(new Edge(stopId,null,cost));
-				}
+    		for(Node n : nodeList)
+		{ //Per ogni fermata
+			//Altrimenti verifico se la fermata successiva in BusLineStop (perchè?) è nel raggio di 250m
+			Statement stmt1 = conn.createStatement();
+			ResultSet temp = stmt1.executeQuery("SELECT id,ST_Distance(ST_GeographyFromText('"+ n.getLatLng() +"'),latlng) as dista FROM BusStop WHERE id != '"+n.getId()+"' AND ST_Distance(ST_GeographyFromText('"+ n.getLatLng() +"'),latlng) <= 250 ");
+			while ( temp.next() )
+			{
+				Double distanza = temp.getDouble("dista");
+				String stopId = temp.getString("id");
+				Double cost = distanza/100;
+				System.out.println("STOP "+n.getId()+" is near to "+stopId);
+				n.getAdjList().add(new Edge(stopId,null,cost));
 			}
-    		*/
+		}
+    		
     		
     		Map<String,Node> nodeMap = new HashMap<String,Node>();
     		for(Node n:nodeList) nodeMap.put(n.getId(), n);
@@ -176,8 +183,7 @@ public class Loader {
         	        
         	        System.out.println("Estimated time to finish (step: "+timeStep+" msec): "+((int)timeLeft)+" minutes ( "+ ((int)timeLeft/60)+" hours). Stop left:"+(nodeList.size()-i));
     			}
-    			
-    	        
+    			     
     	        i++;
     		}
     		if ( ld.size() > 0 )

@@ -8,7 +8,7 @@ public class DijkstraAlgorithm {
     private Graph graph;
     private String sourceNodeId;
     private HashMap<String, String> predecessors;
-    private HashMap<String, Integer> distances; 
+    private HashMap<String, Double> distances; 
     private PriorityQueue<Node> availableNodes;
     private HashSet<Node> visitedNodes; 
     
@@ -32,13 +32,13 @@ public class DijkstraAlgorithm {
         
         this.sourceNodeId = sourceNodeId;
         this.predecessors = new HashMap<String, String>();
-        this.distances = new HashMap<String, Integer>();
+        this.distances = new HashMap<String, Double>();
         this.availableNodes = new PriorityQueue<Node>(nodeIds.size(), new Comparator<Node>(){
         	
             public int compare(Node one, Node two){
-                int weightOne =  DijkstraAlgorithm.this.distances.get(one.getId());
-                int weightTwo = DijkstraAlgorithm.this.distances.get(two.getId());
-                return weightOne - weightTwo;
+                Double weightOne =  DijkstraAlgorithm.this.distances.get(one.getId());
+                Double weightTwo = DijkstraAlgorithm.this.distances.get(two.getId());
+                return (int) (weightOne - weightTwo);
             }
         });
         
@@ -48,21 +48,32 @@ public class DijkstraAlgorithm {
         //assume it has distance infinity denoted by Integer.MAX_VALUE
         for(String nId : nodeIds){
             this.predecessors.put(nId, null);
-            this.distances.put(nId, Integer.MAX_VALUE);
+            this.distances.put(nId, Double.MAX_VALUE);
         }
         
         //the distance from the source node to itself is 0
-        this.distances.put(sourceNodeId, 0);
+        this.distances.put(sourceNodeId, 0.0);
         
         Node  sourceNode = this.graph.getNode(sourceNodeId);
         List<Edge> sourceNodeNeighbors = sourceNode.getAdjList();
         //System.out.println(sourceNodeNeighbors.size());
         //System.out.println(sourceNode.getId());
         for(Edge e : sourceNodeNeighbors){
-        	
             Node other = this.graph.getNode(e.getDst()); 
+        	
+            //Esiste gia' questo Link
+        		if ( this.distances.get(other.getId()) != null)
+        		{
+        			//Aggiorno con il costo migliore
+        			Double oldCost = this.distances.get(other.getId());
+        			
+        			if ( oldCost > e.getCost() )
+        			{
+        	            this.distances.put(other.getId(), e.getCost());
+        			}
+        		}
             this.predecessors.put(other.getId(), sourceNodeId);
-            this.distances.put(other.getId(), e.getCost());
+            //this.distances.put(other.getId(), e.getCost());
             this.availableNodes.add(other);
         }
         
@@ -87,7 +98,7 @@ public class DijkstraAlgorithm {
             
             //pick the cheapest vertex
             Node next = this.availableNodes.poll();
-            int distanceToNext = this.distances.get(next.getId());
+            Double distanceToNext = this.distances.get(next.getId());
             
             //and for each available neighbor of the chosen vertex
             List<Edge> nextNeighbors = next.getAdjList();     
@@ -100,8 +111,8 @@ public class DijkstraAlgorithm {
                 //we check if a shorter path exists
                 //and update to indicate a new shortest found path
                 //in the graph
-                int currentWeight = this.distances.get(other.getId());
-                int newWeight = distanceToNext + e.getCost();
+                Double currentWeight = this.distances.get(other.getId());
+                Double newWeight = distanceToNext + e.getCost();
                 
                 if(newWeight < currentWeight){
                     this.predecessors.put(other.getId(), next.getId());
@@ -149,7 +160,7 @@ public class DijkstraAlgorithm {
      * @param destinationId The node to determine the distance from the initial one
      * @return int The distance from the initial node to the node specified by destinationId
      */
-    public int getDistanceTo(String destinationId){
+    public Double getDistanceTo(String destinationId){
         return this.distances.get(destinationId);
     }
        
