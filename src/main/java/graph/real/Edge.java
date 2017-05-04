@@ -6,6 +6,7 @@ public class Edge {
 	private String line;	//line == null indicates a near stop (250 meters) belonging to another line
 	private int cost;
 
+	/*
 	public Edge(String dst) {
 		this.dst = dst;
 		this.cost = 1;
@@ -15,7 +16,7 @@ public class Edge {
 		this.dst = dst;
 		this.line = line;
 		this.cost = 1;
-	}
+	}*/
 	
 	public Edge(String dst, String line, int cost) {
 		this.dst = dst;
@@ -23,10 +24,11 @@ public class Edge {
 		this.cost = cost;
 	}
 	
+	/*
 	public Edge(String dst, int cost) {
 		this.dst = dst;
 		this.cost = cost;
-	}
+	}*/
 	
 
 	public String getDst() {

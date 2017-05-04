@@ -133,6 +133,10 @@ public class DijkstraAlgorithm {
         
         while(!destinationId.equals(this.sourceNodeId)){
             Node predecessor = graph.getNode(this.predecessors.get(destinationId));
+            if ( predecessor == null )
+            {
+            		return new LinkedList<Node>(); //No path between
+            }
             destinationId = predecessor.getId();
             path.add(0, predecessor);
         }
