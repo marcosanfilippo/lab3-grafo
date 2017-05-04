@@ -56,8 +56,8 @@ public class DijkstraAlgorithm {
         
         Node  sourceNode = this.graph.getNode(sourceNodeId);
         List<Edge> sourceNodeNeighbors = sourceNode.getAdjList();
-        System.out.println(sourceNodeNeighbors.size());
-        System.out.println(sourceNode.getId());
+        //System.out.println(sourceNodeNeighbors.size());
+        //System.out.println(sourceNode.getId());
         for(Edge e : sourceNodeNeighbors){
         	
             Node other = this.graph.getNode(e.getDst()); 
@@ -106,6 +106,7 @@ public class DijkstraAlgorithm {
                 if(newWeight < currentWeight){
                     this.predecessors.put(other.getId(), next.getId());
                     this.distances.put(other.getId(), newWeight);
+                    //TODO ??
                     this.availableNodes.remove(other);
                     this.availableNodes.add(other);
                 }

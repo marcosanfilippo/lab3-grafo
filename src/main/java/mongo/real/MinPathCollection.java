@@ -7,6 +7,8 @@ import org.bson.Document;
 import com.mongodb.client.MongoCursor;
 import static com.mongodb.client.model.Filters.*;
 
+import java.util.List;
+
 public class MinPathCollection {
 	
 	private MongoHandler mh;
@@ -40,6 +42,10 @@ public class MinPathCollection {
 		mh.getMongoDB().getCollection(collName).insertOne(d);
 	}
 	
+	public void addDocument(String collName, List<Document> ld){
+		mh.getMongoDB().getCollection(collName).insertMany(ld);
+	}
+	
 	/**
 	 * REMEBER: The @param used here will create an empty collection if doesn't exist!
 	 * Then, use the name ALWAYS, even to retrieve documents.
@@ -60,6 +66,11 @@ public class MinPathCollection {
 		    cursor.close();
 		}
 		return d;
+	}
+
+	public void drop(String coll) {
+		mh.getMongoDB().getCollection(coll).drop();
+		
 	}
 
 }

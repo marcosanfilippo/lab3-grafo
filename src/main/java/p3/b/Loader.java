@@ -3,7 +3,12 @@ package p3.b;
 import java.sql.*;
 import java.util.*;
 
+import org.bson.Document;
+
 import graph.real.*;
+import maps.route.MinPath;
+import maps.route.MinPathEdge;
+import mongo.real.MinPathCollection;
 
 public class Loader {
     
@@ -13,7 +18,7 @@ public class Loader {
     
     private static Graph parseFromDB(Graph g){
     	List<Node> nodeList = new ArrayList<Node>();
-    	String connectionUrl = "jdbc:postgresql://192.168.99.100:5432/trasporti";
+    	String connectionUrl = "jdbc:postgresql://localhost:5432/trasporti";
     	try {
     		Class.forName("org.postgresql.Driver");
     		Connection conn = DriverManager.getConnection(connectionUrl,"postgres","ai-user-password"); 
@@ -32,6 +37,7 @@ public class Loader {
     			for(Node n : nodeList){
 					if(n.getId().equals(sequenceRS.getString(3))){
 						String line = sequenceRS.getString(1);
+						String stopId = sequenceRS.getString("stopid");
 						// la sua adiacenza è il nodo che segue sulla stessa linea, con sequence number più grande (sono già ordinati per sequenceNumber)
 						if(sequenceRS.next()){
 							String nextLine = sequenceRS.getString(1);
@@ -42,9 +48,10 @@ public class Loader {
 								//adding Edge(stopID, lineID) --> Edge(destination, line);
 								n.getAdjList().add(new Edge(sequenceRS.getString(3), sequenceRS.getString(1)));
 							} else { //check if the distance between nodes is less than 250 m
-								ResultSet temp = stmt.executeQuery("SELECT ST_AsText(latlng) FROM BusStop WHERE id = '"+ sequenceRS.getString(3) +"'");
-								ResultSet distance = stmt.executeQuery("SELECT st_distance_sphere(ST_GeographyFromText("+ temp.getString(0) +"),ST_GeographyFromText("+ n.getLatLng() +")");
-								if (Integer.parseInt(distance.getString(0)) < 250){
+								Statement stmt1 = conn.createStatement(); //TODO close
+								ResultSet temp = stmt1.executeQuery("SELECT ST_DWithin(latlng,ST_GeographyFromText('"+ n.getLatLng() +"'),250) FROM BusStop WHERE id != '"+stopId+"'");
+								if ( temp.next() )
+								{
 									n.getAdjList().add(new Edge(sequenceRS.getString(3)));
 								}
 							}
@@ -59,6 +66,82 @@ public class Loader {
     		for(Node n:nodeList) nodeMap.put(n.getId(), n);
     		g = new Graph(nodeMap);
     		
+			MinPathCollection mpc = new MinPathCollection("percorsi");
+			mpc.drop("percorsi");
+			
+			int i = 0 ;
+			List<Document> ld = new ArrayList<Document>();
+    		for(Node sourceNode : nodeList)
+    		{
+    			String source = sourceNode.getId();
+    	        long timestampStart = System.nanoTime();
+
+    			System.out.println("Init dijk from "+source);
+    			DijkstraAlgorithm djsa = new DijkstraAlgorithm(g,source);
+    			
+    			
+    			
+    			for(Node destinationNode : nodeList)
+    			{
+    				String destination = destinationNode.getId();
+    				if ( source.equals(destination) )
+    				{
+    					continue;
+    				}
+    				//System.out.println("From "+source+" To:"+destination);
+   
+        			List<Node> listNode = djsa.getPathTo(destination);
+        			//TODO
+        			//List<Edge> listEdge = djsa.getPathTo(destination);
+        			
+    				ArrayList<MinPathEdge> edges = new ArrayList<MinPathEdge>();
+    				
+    				for(Node n : listNode)
+    				{
+    					//TODO costo e linea
+    					edges.add(new MinPathEdge(n.getId(),null, 0));
+    				}
+    				
+    				/*
+    				for(Edge e : listEdge)
+    				{
+    					edges.add(new MinPathEdge(e.getDst(),e.getLine(), e.getCost));
+    				}
+    				*/
+        			
+        			MinPath mp = new MinPath();
+        			
+        			mp.setIdSource(source);
+        			mp.setIdDestination(destination);
+        			mp.setEdges(edges);
+        	
+        			//mpc.addDocument("percorsi", mp.getMongoDbDocument());
+        			ld.add(mp.getMongoDbDocument());
+    			}
+    			if ( ld.size() > 10000) //Fast way
+    			{
+        	        System.out.println("Dump...");
+
+	    			mpc.addDocument("percorsi", ld);
+	    			ld.clear();
+	    			
+        	        long timestampFinish = System.nanoTime();
+        	        
+        	        double timeStep = (timestampFinish -timestampStart)/1000/1000;
+        	        double timeLeft = timeStep*(nodeList.size()-i)/1000/60;
+        	        
+        	        
+        	        System.out.println("Estimated time to finish (step: "+timeStep+" msec): "+((int)timeLeft)+" minutes ( "+ ((int)timeLeft/60)+" hours). Stop left:"+(nodeList.size()-i));
+    			}
+    			
+    	        
+    	        i++;
+    		}
+    		if ( ld.size() > 0 )
+    		{
+    			mpc.addDocument("percorsi", ld);
+    			ld.clear();
+    		}
     	} catch (Exception e) {    		
     		e.printStackTrace();
     		System.exit(1);
