@@ -104,7 +104,7 @@ public class Loader {
 				String stopId = temp.getString("id");
 				String name = temp.getString("name");
 				Double cost = distanza/100;
-				if (name.contains("Metro")) cost+= 100;
+				if (name.contains("Metro")) cost+= 1;
 				System.out.println("STOP "+n.getId()+" is near to "+stopId);
 				n.getAdjList().add(new Edge(stopId,null,cost));
 			}
