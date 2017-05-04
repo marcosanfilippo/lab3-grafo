@@ -39,55 +39,55 @@ public class Loader {
     		//		A) Creo un arco verso ogni fermata vicina (1 Hop) raggiungibile tramite un BUS
     		//		B) Creo un arco verso ogni fermata raggiungibile a piedi ( distanza <= 250 )
     		
+    		Map<String,Node> nodeMap = new HashMap<String,Node>();
+    		for(Node n:nodeList) nodeMap.put(n.getId(), n);
+    		g = new Graph(nodeMap);
+    		
     		while(sequenceRS.next()){ //Per ogni BusLineStop
-    			for(Node n : nodeList){ //Per ogni fermata (??)
-					if(n.getId().equals(sequenceRS.getString("stopid"))) //Se L'id della fermata coincide con l'id di BusLineStop
+    			Node n = nodeMap.get(sequenceRS.getString("stopid"));
+    			
+			String line = sequenceRS.getString("lineid");
+			String stopId = sequenceRS.getString("stopid");
+			
+			//Se c'è un successivo
+			// la sua adiacenza è il nodo che segue sulla stessa linea, con sequence number più grande (sono già ordinati per sequenceNumber)
+			if(sequenceRS.next()){
+				String nextLine = sequenceRS.getString("lineid");
+				String nextStop = sequenceRS.getString("stopid");
+				
+				Statement stmtDistance = conn.createStatement();
+	    			ResultSet distanceQuery = stmtDistance.executeQuery("SELECT ST_Distance(latlng,ST_GeographyFromText('"+ n.getLatLng() +"')) AS distan FROM BusStop WHERE id='"+nextStop+"'");
+	    			if ( ! distanceQuery.next() )
+	    			{
+	    				throw new Exception("Unable to find BusStop with id "+nextStop);
+	    			}
+				Double distanza =  distanceQuery.getDouble("distan");
+				Double cost = distanza/500;
+				//Se sono sulla stessa linea
+				if(line.compareToIgnoreCase(nextLine)==0){
+					//can add its next, because the bus line is the same
+					System.out.println("Linea: " + line + ", " + n.getId() + " -> " + nextStop + ", ");
+					
+					//adding Edge(stopID, lineID) --> Edge(destination, line);
+					n.getAdjList().add(new Edge(nextStop, nextLine,cost));
+				//Altrimenti verifico se la fermata successiva in BusLineStop (?) è nel raggio di 250m
+				} else { //check if the distance between nodes is less than 250 m
+					/*Statement stmt1 = conn.createStatement();
+					ResultSet temp = stmt1.executeQuery("SELECT id,ST_Distance(latlng,ST_GeographyFromText('"+ n.getLatLng() +"')) as dista FROM BusStop WHERE id = '"+nextStop+"'");
+					if ( temp.next() )
 					{
-						String line = sequenceRS.getString("lineid");
-						String stopId = sequenceRS.getString("stopid");
-						
-						//Se c'è un successivo
-						// la sua adiacenza è il nodo che segue sulla stessa linea, con sequence number più grande (sono già ordinati per sequenceNumber)
-						if(sequenceRS.next()){
-							String nextLine = sequenceRS.getString("lineid");
-							String nextStop = sequenceRS.getString("stopid");
-							
-							Statement stmtDistance = conn.createStatement();
-				    			ResultSet distanceQuery = stmtDistance.executeQuery("SELECT ST_Distance(latlng,ST_GeographyFromText('"+ n.getLatLng() +"')) AS distan FROM BusStop WHERE id='"+nextStop+"'");
-				    			if ( ! distanceQuery.next() )
-				    			{
-				    				throw new Exception("Unable to find BusStop with id "+nextStop);
-				    			}
-							Double distanza =  distanceQuery.getDouble("distan");
-							Double cost = distanza/500;
-							//Se sono sulla stessa linea
-							if(line.compareToIgnoreCase(nextLine)==0){
-								//can add its next, because the bus line is the same
-								System.out.println("Linea: " + line + ", " + n.getId() + " -> " + nextStop + ", ");
-								
-								//adding Edge(stopID, lineID) --> Edge(destination, line);
-								n.getAdjList().add(new Edge(nextStop, nextLine,cost));
-							//Altrimenti verifico se la fermata successiva in BusLineStop (?) è nel raggio di 250m
-							} else { //check if the distance between nodes is less than 250 m
-								/*Statement stmt1 = conn.createStatement();
-								ResultSet temp = stmt1.executeQuery("SELECT id,ST_Distance(latlng,ST_GeographyFromText('"+ n.getLatLng() +"')) as dista FROM BusStop WHERE id = '"+nextStop+"'");
-								if ( temp.next() )
-								{
-									Double distanza = temp.getDouble("dista");
-									if ( distanza <= 250 )
-									{
-										n.getAdjList().add(new Edge(nextStop,null,cost));
-									}
-								}
-								temp.close();
-								stmt1.close();*/
-							}
-							if(!sequenceRS.isLast())
-								sequenceRS.previous(); //return to the previous line to process its node!
-							break;
-						}	
+						Double distanza = temp.getDouble("dista");
+						if ( distanza <= 250 )
+						{
+							n.getAdjList().add(new Edge(nextStop,null,cost));
+						}
 					}
+					temp.close();
+					stmt1.close();*/
 				}
+				if(!sequenceRS.isLast())
+					sequenceRS.previous(); //return to the previous line to process its node!
+			}	
     		}
     		
     		for(Node n : nodeList)
@@ -105,16 +105,13 @@ public class Loader {
 			}
 		}
     		
+    	
     		
-    		Map<String,Node> nodeMap = new HashMap<String,Node>();
-    		for(Node n:nodeList) nodeMap.put(n.getId(), n);
-    		g = new Graph(nodeMap);
-    		
-			MinPathCollection mpc = new MinPathCollection("percorsi");
-			mpc.drop("percorsi");
-			
-			int i = 0 ;
-			List<Document> ld = new ArrayList<Document>();
+		MinPathCollection mpc = new MinPathCollection("percorsi");
+		mpc.drop("percorsi");
+		
+		int i = 0 ;
+		List<Document> ld = new ArrayList<Document>();
     		for(Node sourceNode : nodeList)
     		{
     			String source = sourceNode.getId();
@@ -138,7 +135,9 @@ public class Loader {
         			
         			if ( listNode.size() == 0 )
         			{
-        				throw new Exception("Unable to find Path from "+source+" to "+destination);
+        				//throw new Exception("Unable to find Path from "+source+" to "+destination);
+        				System.out.println("Unable to find Path from "+source+" to "+destination);
+        				continue;
         			}
         			
         			//TODO
