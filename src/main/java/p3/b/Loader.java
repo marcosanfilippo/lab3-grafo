@@ -97,7 +97,7 @@ public class Loader {
 		{ //Per ogni fermata
 			//Altrimenti verifico se la fermata successiva in BusLineStop (perchè?) è nel raggio di 250m
 			Statement stmt1 = conn.createStatement();
-			ResultSet temp = stmt1.executeQuery("SELECT id,ST_Distance(ST_GeographyFromText('"+ n.getLatLng() +"'),latlng) as dista, name FROM BusStop WHERE id != '"+n.getId()+"' AND ST_Distance(ST_GeographyFromText('"+ n.getLatLng() +"'),latlng) <= 250 ");
+			ResultSet temp = stmt1.executeQuery("SELECT id,name,ST_Distance(ST_GeographyFromText('"+ n.getLatLng() +"'),latlng) as dista FROM BusStop WHERE id != '"+n.getId()+"' AND ST_Distance(ST_GeographyFromText('"+ n.getLatLng() +"'),latlng) <= 250 ");
 			while ( temp.next() )
 			{
 				Double distanza = temp.getDouble("dista");
